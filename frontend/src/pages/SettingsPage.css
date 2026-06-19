@@ -1,0 +1,166 @@
+.settings-page {
+  padding-top: var(--space-xl);
+  padding-bottom: var(--space-section);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  max-width: 680px;
+}
+
+.settings-page__header {
+  margin-bottom: var(--space-xs);
+}
+
+.settings-page__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-ink);
+  letter-spacing: -0.5px;
+  margin-bottom: var(--space-xs);
+}
+
+.settings-page__desc {
+  font-size: 15px;
+  color: var(--color-body);
+}
+
+.settings-page__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.settings-section__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+/* Car type grid */
+.settings-car-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+}
+
+.car-type-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-base) var(--space-lg);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-hairline);
+  background: var(--color-surface-soft);
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.car-type-btn:hover {
+  background: var(--color-surface-strong);
+  border-color: var(--color-primary);
+}
+
+.car-type-btn--active {
+  border-color: var(--color-primary);
+  background: rgba(0, 82, 255, 0.06);
+}
+
+.car-type-btn__label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.car-type-btn--active .car-type-btn__label {
+  color: var(--color-primary);
+}
+
+.car-type-btn__example {
+  font-size: 13px;
+  color: var(--color-body);
+}
+
+.car-type-btn__mpg {
+  font-size: 12px;
+  color: var(--color-muted);
+}
+
+/* Form fields */
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.settings-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.settings-field__label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-body);
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.settings-field__input {
+  height: 44px;
+  width: 120px;
+  padding: 0 var(--space-sm);
+  border: 1.5px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-ink);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.settings-field__input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.12);
+}
+
+.settings-field__unit {
+  font-size: 14px;
+  color: var(--color-body);
+}
+
+/* Actions */
+.settings-page__actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+}
+
+.settings-save-btn {
+  height: 48px;
+  padding: 0 var(--space-xl);
+  font-size: 15px;
+}
+
+.settings-reset-btn {
+  height: 48px;
+  padding: 0 var(--space-lg);
+  font-size: 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-hairline);
+  color: var(--color-body);
+  background: transparent;
+  font-weight: 500;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.settings-reset-btn:hover {
+  border-color: var(--color-ink);
+  color: var(--color-ink);
+}
+
+@media (max-width: 640px) {
+  .settings-car-grid {
+    grid-template-columns: 1fr;
+  }
+}

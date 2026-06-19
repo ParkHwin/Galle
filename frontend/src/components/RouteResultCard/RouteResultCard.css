@@ -1,0 +1,186 @@
+.route-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+
+.route-card:hover {
+  box-shadow: 0 8px 32px rgba(10, 11, 13, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Header */
+.route-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.route-card__type-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.route-card__emoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.route-card__type {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.route-card__name {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-body);
+}
+
+/* Tags */
+.route-card__tags {
+  display: flex;
+  gap: var(--space-xxs);
+  flex-wrap: wrap;
+}
+
+.route-card__tag {
+  display: inline-flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tag--green {
+  background: rgba(5, 177, 105, 0.1);
+  color: #059c5b;
+}
+
+.tag--blue {
+  background: rgba(0, 82, 255, 0.1);
+  color: var(--color-primary);
+}
+
+.tag--orange {
+  background: rgba(244, 176, 0, 0.12);
+  color: #c47f00;
+}
+
+/* Route row */
+.route-card__route {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+  padding: var(--space-base) 0;
+  border-top: 1px solid var(--color-hairline-soft);
+  border-bottom: 1px solid var(--color-hairline-soft);
+}
+
+.route-card__station {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.route-card__station--right {
+  text-align: right;
+  align-items: flex-end;
+}
+
+.route-card__time {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: 1.1;
+}
+
+.route-card__station-name {
+  font-size: 13px;
+  color: var(--color-body);
+}
+
+.route-card__arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.route-card__arrow .duration-badge {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+  background: var(--color-surface-soft);
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.route-card__arrow-line {
+  font-size: 18px;
+  color: var(--color-hairline);
+}
+
+/* Detail */
+.route-card__detail {
+  display: flex;
+  gap: var(--space-base);
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--color-body);
+  padding: var(--space-xs) 0;
+}
+
+.route-card__detail-note {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+/* Footer */
+.route-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-base);
+}
+
+.route-card__fare .fare-badge {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.route-card__book {
+  text-decoration: none;
+  height: 40px;
+  padding: 0 var(--space-lg);
+  font-size: 14px;
+}
+
+.route-card__no-booking {
+  font-size: 13px;
+  color: var(--color-muted);
+  background: var(--color-surface-soft);
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+}
+
+@media (max-width: 640px) {
+  .route-card__time {
+    font-size: 18px;
+  }
+
+  .route-card__fare .fare-badge {
+    font-size: 18px;
+  }
+}

@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/gallae?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  # H2 인메모리 DB (application.yml 없을 때 fallback)
+  h2:
+    console:
+      enabled: false
+
+logging:
+  level:
+    com.gallae: DEBUG
+    org.springframework.web: INFO
+
+external:
+  srt:
+    base-url: https://api.odcloud.kr/api/15040160/v1/uddi:f4cca1a9-a1f1-4b7f-bf1c-a7dc600f0f2d
+    service-key: a93e33c776b09126457d9b46f235e8d1c5d898b1544211d71cb8436af8bfffb5
+
+  korail:
+    base-url: https://apis.data.go.kr/B551457/run/v2
+    service-key: a93e33c776b09126457d9b46f235e8d1c5d898b1544211d71cb8436af8bfffb5
+
+  bus:
+    base-url: https://apis.data.go.kr/1613000/ExpBusInfo
+    service-key: a93e33c776b09126457d9b46f235e8d1c5d898b1544211d71cb8436af8bfffb5
+
+  kakao:
+    navi-base-url: https://apis-navi.kakaomobility.com
+    api-key: 4e84601aee43ff7dad5d252a62db208f
