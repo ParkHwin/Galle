@@ -1,0 +1,108 @@
+.search-form {
+  width: 100%;
+}
+
+.search-form__row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.search-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 120px;
+}
+
+.search-form__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.search-form__select,
+.search-form__input {
+  height: 48px;
+  padding: 0 var(--space-sm);
+  border: 1.5px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-ink);
+  background: var(--color-canvas);
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.search-form__select:focus,
+.search-form__input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.12);
+}
+
+.search-form__swap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  font-size: 20px;
+  color: var(--color-body);
+  background: var(--color-surface-soft);
+  border: 1.5px solid var(--color-hairline);
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+  margin-bottom: 0;
+  align-self: flex-end;
+}
+
+.search-form__swap:hover {
+  background: var(--color-surface-strong);
+  color: var(--color-primary);
+}
+
+.search-form__submit {
+  height: 48px;
+  padding: 0 var(--space-xl);
+  font-size: 15px;
+  align-self: flex-end;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.search-form__error {
+  margin-top: var(--space-sm);
+  font-size: 13px;
+  color: var(--color-semantic-down);
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .search-form__row {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .search-form__field {
+    width: 100%;
+    min-width: unset;
+  }
+
+  .search-form__swap {
+    width: 100%;
+    height: 40px;
+  }
+
+  .search-form__submit {
+    width: 100%;
+    height: 52px;
+    font-size: 16px;
+  }
+}

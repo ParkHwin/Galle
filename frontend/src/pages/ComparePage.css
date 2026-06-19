@@ -1,0 +1,37 @@
+.compare-page {
+  padding-top: var(--space-section);
+  padding-bottom: var(--space-section);
+}
+
+.compare-page__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-lg);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.compare-page__icon {
+  font-size: 56px;
+  line-height: 1;
+}
+
+.compare-page__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-ink);
+  letter-spacing: -0.5px;
+}
+
+.compare-page__desc {
+  font-size: 16px;
+  color: var(--color-body);
+  line-height: 1.7;
+}
+
+.compare-page__cta {
+  text-decoration: none;
+  margin-top: var(--space-sm);
+}

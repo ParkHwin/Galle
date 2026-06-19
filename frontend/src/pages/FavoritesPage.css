@@ -1,0 +1,121 @@
+.favorites-page {
+  padding-top: var(--space-xl);
+  padding-bottom: var(--space-section);
+}
+
+.favorites-page__header {
+  margin-bottom: var(--space-xl);
+}
+
+.favorites-page__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-ink);
+  letter-spacing: -0.5px;
+  margin-bottom: var(--space-xs);
+}
+
+.favorites-page__desc {
+  font-size: 15px;
+  color: var(--color-body);
+}
+
+.favorites-page__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-base);
+  padding: var(--space-section) 0;
+  color: var(--color-body);
+}
+
+.favorites-page__empty span {
+  font-size: 48px;
+}
+
+.favorites-page__empty p {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.favorites-page__empty-sub {
+  font-size: 14px;
+  color: var(--color-muted);
+  font-weight: 400 !important;
+}
+
+.favorites-page__cta {
+  text-decoration: none;
+  margin-top: var(--space-sm);
+}
+
+.favorites-page__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-base);
+}
+
+.favorites-page__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-base);
+  flex-wrap: wrap;
+}
+
+.favorites-item__route {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 1;
+}
+
+.favorites-item__from,
+.favorites-item__to {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.favorites-item__arrow {
+  font-size: 16px;
+  color: var(--color-primary);
+}
+
+.favorites-item__label {
+  font-size: 13px;
+  color: var(--color-body);
+  background: var(--color-surface-soft);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+}
+
+.favorites-item__actions {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.favorites-item__search {
+  height: 38px;
+  padding: 0 var(--space-base);
+  font-size: 14px;
+}
+
+.favorites-item__remove {
+  height: 38px;
+  padding: 0 var(--space-base);
+  font-size: 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--color-hairline);
+  color: var(--color-body);
+  background: transparent;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.favorites-item__remove:hover {
+  border-color: var(--color-semantic-down);
+  color: var(--color-semantic-down);
+}

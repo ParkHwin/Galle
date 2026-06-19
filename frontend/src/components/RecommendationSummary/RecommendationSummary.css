@@ -1,0 +1,70 @@
+.recommendation-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-base);
+}
+
+.summary-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-base) var(--space-lg);
+  border-radius: var(--radius-xl);
+  border: 1.5px solid transparent;
+}
+
+.summary-card--green {
+  background: rgba(5, 177, 105, 0.07);
+  border-color: rgba(5, 177, 105, 0.2);
+}
+
+.summary-card--blue {
+  background: rgba(0, 82, 255, 0.06);
+  border-color: rgba(0, 82, 255, 0.18);
+}
+
+.summary-card--orange {
+  background: rgba(244, 176, 0, 0.08);
+  border-color: rgba(244, 176, 0, 0.25);
+}
+
+.summary-card__emoji {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.summary-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary-card__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-body);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-card--green .summary-card__label { color: #059c5b; }
+.summary-card--blue .summary-card__label { color: var(--color-primary); }
+.summary-card--orange .summary-card__label { color: #c47f00; }
+
+.summary-card__value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+@media (max-width: 640px) {
+  .recommendation-summary {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+
+  .summary-card {
+    padding: var(--space-sm) var(--space-base);
+  }
+}

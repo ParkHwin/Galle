@@ -1,0 +1,15 @@
+build/
+out/
+.gradle/
+*.class
+*.jar
+*.war
+.env
+src/main/resources/application.yml
+!src/main/resources/application-example.yml
+src/main/resources/data/*.csv
+src/main/resources/data/*.xls
+src/main/resources/data/*.xlsx
+HELP.md
+.idea/
+*.iml
