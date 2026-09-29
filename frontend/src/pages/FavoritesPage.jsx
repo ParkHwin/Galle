@@ -1,24 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import './FavoritesPage.css'
 
 export default function FavoritesPage() {
-  const [favorites, setFavorites] = useState([])
+  const { favorites, removeFavoriteRoute, refreshFavorites } = useAuth()
   const navigate = useNavigate()
 
+  // 로그인 사용자는 서버 값이 최신인지 다시 확인, 비로그인 사용자는 localStorage를 다시 읽는다.
   useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem('gallae_favorites') || '[]')
-      setFavorites(stored)
-    } catch {
-      setFavorites([])
-    }
+    refreshFavorites()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function handleRemove(index) {
-    const updated = favorites.filter((_, i) => i !== index)
-    setFavorites(updated)
-    localStorage.setItem('gallae_favorites', JSON.stringify(updated))
+  function handleRemove(fav) {
+    removeFavoriteRoute(fav.from, fav.to)
   }
 
   function handleSearch(fav) {
@@ -52,7 +48,7 @@ export default function FavoritesPage() {
       ) : (
         <ul className="favorites-page__list" aria-label="즐겨찾기 목록">
           {favorites.map((fav, i) => (
-            <li key={i} className="favorites-page__item card">
+            <li key={fav.id ?? `${fav.from}-${fav.to}-${i}`} className="favorites-page__item card">
               <div className="favorites-item__route">
                 <span className="favorites-item__from">{fav.from}</span>
                 <span className="favorites-item__arrow" aria-hidden="true">→</span>
@@ -70,7 +66,7 @@ export default function FavoritesPage() {
                 </button>
                 <button
                   className="favorites-item__remove"
-                  onClick={() => handleRemove(i)}
+                  onClick={() => handleRemove(fav)}
                   aria-label={`${fav.from}→${fav.to} 즐겨찾기 삭제`}
                 >
                   삭제

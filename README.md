@@ -179,6 +179,7 @@ backend/src/main/resources/data/
 | GET | `/api/bus/grades` | 버스 등급 조회 |
 | GET | `/api/bus/routes` | 고속버스 노선 조회 |
 | GET | `/api/car/directions` | 자가용 길찾기 |
+| GET | `/api/auth/me` | 현재 로그인 사용자 정보 조회 (JWT 필요) |
 
 ### 통합 검색 예시
 

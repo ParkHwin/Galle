@@ -9,87 +9,6 @@ import ErrorMessage from '../components/ErrorMessage/ErrorMessage'
 import { searchRoutes } from '../api'
 import './SearchPage.css'
 
-// Mock data — used when API is unavailable
-const MOCK_RESULTS = {
-  from: '서울',
-  to: '부산',
-  date: '2026-06-19',
-  time: '09:00',
-  results: [
-    {
-      type: 'KTX',
-      name: 'KTX 101',
-      departureName: '서울역',
-      arrivalName: '부산역',
-      departureTime: '09:00',
-      arrivalTime: '11:18',
-      durationMinutes: 138,
-      fare: 59800,
-      recommendTags: ['최단시간', '종합추천'],
-      bookingUrl: 'https://www.letskorail.com',
-    },
-    {
-      type: 'SRT',
-      name: 'SRT 301',
-      departureName: '수서역',
-      arrivalName: '부산역',
-      departureTime: '09:10',
-      arrivalTime: '11:25',
-      durationMinutes: 135,
-      fare: 52600,
-      recommendTags: [],
-      bookingUrl: 'https://etk.srail.kr',
-    },
-    {
-      type: 'ITX-새마을',
-      name: 'ITX-새마을 1001',
-      departureName: '서울역',
-      arrivalName: '부산역',
-      departureTime: '08:40',
-      arrivalTime: '13:22',
-      durationMinutes: 282,
-      fare: 42600,
-      recommendTags: [],
-      bookingUrl: 'https://www.letskorail.com',
-    },
-    {
-      type: '고속버스',
-      name: '서울경부 → 부산',
-      departureName: '서울경부터미널',
-      arrivalName: '부산종합터미널',
-      departureTime: '09:20',
-      arrivalTime: '13:40',
-      durationMinutes: 260,
-      fare: 25900,
-      recommendTags: ['최저가'],
-      bookingUrl: 'https://www.kobus.co.kr',
-    },
-    {
-      type: '자가용',
-      name: '자가용 (경부고속도로)',
-      departureName: '서울',
-      arrivalName: '부산',
-      departureTime: null,
-      arrivalTime: null,
-      durationMinutes: 280,
-      fare: 58100,
-      recommendTags: [],
-      bookingUrl: null,
-      detail: {
-        distanceKm: 325,
-        toll: 28100,
-        fuelCost: 30000,
-        fuelStandard: '중형차 연비 12km/L 기준',
-      },
-    },
-  ],
-  summary: {
-    cheapest: '고속버스',
-    fastest: 'KTX',
-    recommended: 'KTX',
-  },
-}
-
 export default function SearchPage() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
@@ -103,31 +22,29 @@ export default function SearchPage() {
   const [error, setError] = useState('')
   const [data, setData] = useState(null)
   const [activeTab, setActiveTab] = useState('all')
-  const [usingMock, setUsingMock] = useState(false)
+  const [page, setPage] = useState(1)
+  const PAGE_SIZE = 10
+
+  // URL 파라미터 변경 시 (뒤로가기 포함) 탭·페이지 초기화
+  useEffect(() => {
+    setActiveTab('all')
+    setPage(1)
+  }, [from, to, date, time])
 
   useEffect(() => {
     let cancelled = false
     setLoading(true)
     setError('')
-    setUsingMock(false)
 
     searchRoutes({ from, to, date, time })
       .then((res) => {
         if (!cancelled) {
-          setData(res.data)
+          setData(res.data?.data ?? res.data)
         }
       })
-      .catch(() => {
+      .catch((err) => {
         if (!cancelled) {
-          // Fall back to mock data
-          setData({
-            ...MOCK_RESULTS,
-            from,
-            to,
-            date,
-            time,
-          })
-          setUsingMock(true)
+          setError(err?.response?.data?.message || '검색 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.')
         }
       })
       .finally(() => {
@@ -141,6 +58,12 @@ export default function SearchPage() {
     const qs = new URLSearchParams(params)
     navigate(`/search?${qs.toString()}`)
     setActiveTab('all')
+    setPage(1)
+  }
+
+  function handleTabChange(tab) {
+    setActiveTab(tab)
+    setPage(1)
   }
 
   const results = data?.results ?? []
@@ -148,6 +71,12 @@ export default function SearchPage() {
     activeTab === 'all'
       ? results
       : results.filter((r) => r.type === activeTab)
+
+  const totalPages = activeTab === 'all' ? Math.ceil(filteredResults.length / PAGE_SIZE) : 1
+  const pagedResults =
+    activeTab === 'all'
+      ? filteredResults.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+      : filteredResults
 
   return (
     <div className="search-page">
@@ -170,11 +99,7 @@ export default function SearchPage() {
           <span className="search-page__meta">
             {date} · {time} 출발 기준
           </span>
-          {usingMock && (
-            <span className="search-page__mock-badge">
-              * 샘플 데이터 (API 미연결)
-            </span>
-          )}
+
         </div>
 
         {loading && <LoadingSpinner />}
@@ -192,7 +117,7 @@ export default function SearchPage() {
 
             {/* Tabs */}
             <div className="search-page__section">
-              <TransportTabs activeTab={activeTab} onTabChange={setActiveTab} />
+              <TransportTabs activeTab={activeTab} onTabChange={handleTabChange} />
             </div>
 
             {/* Results */}
@@ -203,9 +128,42 @@ export default function SearchPage() {
                   <p>해당 교통수단의 결과가 없습니다.</p>
                 </div>
               ) : (
-                filteredResults.map((result, i) => (
-                  <RouteResultCard key={`${result.type}-${i}`} result={result} />
-                ))
+                <>
+                  {pagedResults.map((result, i) => (
+                    <RouteResultCard key={`${result.type}-${(page - 1) * PAGE_SIZE + i}`} result={result} />
+                  ))}
+
+                  {activeTab === 'all' && totalPages > 1 && (
+                    <div className="search-page__pagination">
+                      <button
+                        className="search-page__page-btn"
+                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                        disabled={page === 1}
+                        aria-label="이전 페이지"
+                      >
+                        ‹
+                      </button>
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                        <button
+                          key={p}
+                          className={`search-page__page-btn${p === page ? ' search-page__page-btn--active' : ''}`}
+                          onClick={() => setPage(p)}
+                          aria-current={p === page ? 'page' : undefined}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                      <button
+                        className="search-page__page-btn"
+                        onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages}
+                        aria-label="다음 페이지"
+                      >
+                        ›
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </>

@@ -2,12 +2,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-base);
-  transition: box-shadow 0.2s, transform 0.15s;
+  transition: box-shadow 0.2s;
 }
 
 .route-card:hover {
-  box-shadow: 0 8px 32px rgba(10, 11, 13, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 /* Header */
@@ -19,6 +18,44 @@
   flex-wrap: wrap;
 }
 
+.route-card__header-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+/* 즐겨찾기 버튼 */
+.route-card__fav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-muted);
+  background: var(--color-surface-soft);
+  border: 1px solid var(--color-hairline);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.route-card__fav-btn:hover {
+  background: var(--color-surface-strong);
+  color: var(--color-ink);
+}
+
+.route-card__fav-btn--active {
+  color: var(--color-primary);
+  background: rgba(0, 82, 255, 0.08);
+  border-color: rgba(0, 82, 255, 0.2);
+}
+
+.route-card__fav-label {
+  font-size: 11px;
+}
+
 .route-card__type-row {
   display: flex;
   align-items: center;
@@ -26,7 +63,8 @@
 }
 
 .route-card__emoji {
-  font-size: 22px;
+  display: inline-flex;
+  color: var(--color-primary);
   line-height: 1;
 }
 
@@ -97,10 +135,12 @@
 }
 
 .route-card__time {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-ink);
   line-height: 1.1;
+  letter-spacing: -0.5px;
 }
 
 .route-card__station-name {
@@ -155,9 +195,11 @@
 }
 
 .route-card__fare .fare-badge {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--color-ink);
+  letter-spacing: -0.5px;
 }
 
 .route-card__book {
@@ -173,6 +215,70 @@
   background: var(--color-surface-soft);
   padding: 8px 16px;
   border-radius: var(--radius-pill);
+}
+
+/* 비로그인 예매 잠금 */
+.route-card__login-gate {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-xs);
+}
+
+.route-card__book--locked {
+  opacity: 0.65;
+  cursor: pointer;
+  filter: grayscale(30%);
+}
+
+.route-card__login-hint {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: var(--color-ink);
+  color: #fff;
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  box-shadow: 0 4px 16px rgba(10, 11, 13, 0.18);
+  z-index: 10;
+  animation: hint-fade-in 0.15s ease;
+}
+
+.route-card__login-hint::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 20px;
+  border: 6px solid transparent;
+  border-top-color: var(--color-ink);
+}
+
+.route-card__login-hint-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.route-card__login-hint-btn:hover {
+  opacity: 0.85;
+}
+
+@keyframes hint-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 640px) {

@@ -1,7 +1,19 @@
 import { useState } from 'react'
 import './SearchForm.css'
 
-const CITIES = ['서울', '부산', '대전', '대구', '광주', '제주']
+// LocationCodeMapper에 정의된 전체 도시 (코레일·버스·카카오 중 하나 이상 지원)
+const CITIES = [
+  '서울', '수서', '용산', '영등포', '광명',
+  '수원', '평택', '천안', '천안아산', '오송',
+  '대전', '서대전', '청주',
+  '김천구미', '대구', '동대구', '경주', '포항',
+  '울산', '창원', '부산',
+  '익산', '전주', '목포',
+  '광주', '광주송정',
+  '여수', '진주',
+  '강릉', '춘천', '원주', '안동',
+  '인천',
+]
 
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10)

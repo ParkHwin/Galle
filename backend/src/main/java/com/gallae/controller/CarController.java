@@ -15,8 +15,8 @@ public class CarController {
 
     @GetMapping("/directions")
     public ApiResponse<Map<String, Object>> getDirections(
-            @RequestParam String origin,
-            @RequestParam String destination) {
+            @RequestParam("origin") String origin,
+            @RequestParam("destination") String destination) {
         return ApiResponse.ok(carService.getDirections(origin, destination));
     }
 }

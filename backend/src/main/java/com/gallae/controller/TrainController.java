@@ -20,16 +20,16 @@ public class TrainController {
 
     @GetMapping("/plans")
     public ApiResponse<List<Map<String, Object>>> getRunPlans(
-            @RequestParam String date,
-            @RequestParam String depCode,
-            @RequestParam String arrCode) {
+            @RequestParam("date") String date,
+            @RequestParam("depCode") String depCode,
+            @RequestParam("arrCode") String arrCode) {
         return ApiResponse.ok(trainService.getRunPlans(date, depCode, arrCode));
     }
 
     @GetMapping("/runs")
     public ApiResponse<List<Map<String, Object>>> getRunInfo(
-            @RequestParam String date,
-            @RequestParam String trainNo) {
+            @RequestParam("date") String date,
+            @RequestParam("trainNo") String trainNo) {
         return ApiResponse.ok(trainService.getRunInfo(date, trainNo));
     }
 }

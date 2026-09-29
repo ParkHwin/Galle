@@ -38,6 +38,14 @@
   outline: none;
   transition: border-color 0.15s;
   width: 100%;
+  /* 다크모드에서 네이티브 드롭다운 텍스트가 흰색이 되는 현상 방지 */
+  color-scheme: light;
+}
+
+/* 네이티브 option 색상 명시 — 브라우저/OS별 상속 실패 보완 */
+.search-form__select option {
+  color: #0a0b0d;
+  background-color: #ffffff;
 }
 
 .search-form__select:focus,

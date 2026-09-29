@@ -4,8 +4,8 @@ server:
 spring:
   datasource:
     url: jdbc:mysql://localhost:3306/gallae?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
-    password: 1234
+    username: YOUR_DB_USERNAME
+    password: YOUR_DB_PASSWORD
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
@@ -30,16 +30,16 @@ logging:
 external:
   srt:
     base-url: https://api.odcloud.kr/api/15040160/v1/uddi:f4cca1a9-a1f1-4b7f-bf1c-a7dc600f0f2d
-    service-key: a93e33c776b09126457d9b46f235e8d1c5d898b1544211d71cb8436af8bfffb5
+    service-key: YOUR_SRT_SERVICE_KEY    # https://www.data.go.kr
 
   korail:
     base-url: https://apis.data.go.kr/B551457/run/v2
-    service-key: a93e33c776b09126457d9b46f235e8d1c5d898b1544211d71cb8436af8bfffb5
+    service-key: YOUR_KORAIL_SERVICE_KEY # https://www.data.go.kr
 
   bus:
     base-url: https://apis.data.go.kr/1613000/ExpBusInfo
-    service-key: a93e33c776b09126457d9b46f235e8d1c5d898b1544211d71cb8436af8bfffb5
+    service-key: YOUR_BUS_SERVICE_KEY    # https://www.data.go.kr
 
   kakao:
     navi-base-url: https://apis-navi.kakaomobility.com
-    api-key: 4e84601aee43ff7dad5d252a62db208f
+    api-key: YOUR_KAKAO_MOBILITY_API_KEY # https://developers.kakao.com

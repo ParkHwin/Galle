@@ -12,10 +12,11 @@
 }
 
 .settings-page__title {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 400;
   color: var(--color-ink);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.4px;
+  line-height: 1.13;
   margin-bottom: var(--space-xs);
 }
 
@@ -31,8 +32,8 @@
 }
 
 .settings-section__title {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 18px;
+  font-weight: 600;
   color: var(--color-ink);
 }
 

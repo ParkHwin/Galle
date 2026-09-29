@@ -15,10 +15,10 @@ public class SearchController {
 
     @GetMapping("/routes")
     public ApiResponse<RouteSearchResponse> searchRoutes(
-            @RequestParam String from,
-            @RequestParam String to,
-            @RequestParam(required = false) String date,
-            @RequestParam(required = false) String time) {
+            @RequestParam("from") String from,
+            @RequestParam("to") String to,
+            @RequestParam(name = "date", required = false) String date,
+            @RequestParam(name = "time", required = false) String time) {
         RouteSearchResponse response = searchService.search(from, to, date, time);
         return ApiResponse.ok(response);
     }

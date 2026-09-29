@@ -1,41 +1,43 @@
 :root {
-  --color-primary: #0052ff;
-  --color-primary-active: #003ecc;
-  --color-primary-disabled: #a8b8cc;
-  --color-ink: #0a0b0d;
-  --color-body: #5b616e;
-  --color-muted: #7c828a;
-  --color-hairline: #dee1e6;
-  --color-hairline-soft: #eef0f3;
-  --color-canvas: #ffffff;
-  --color-surface-soft: #f7f7f7;
-  --color-surface-strong: #eef0f3;
-  --color-surface-dark: #0a0b0d;
-  --color-surface-dark-elevated: #16181c;
-  --color-on-primary: #ffffff;
-  --color-on-dark: #ffffff;
-  --color-on-dark-soft: #a8acb3;
-  --color-semantic-up: #05b169;
+  /* PAGE_DESIGN.md (애플 스타일 분석) 토큰과 정합화.
+     변수 이름은 기존 컴포넌트 CSS와의 호환을 위해 그대로 유지하고 값만 갱신했다. */
+  --color-primary: #0066cc;          /* {colors.primary} Action Blue */
+  --color-primary-active: #0055ad;   /* Action Blue press 상태 (Apple은 scale transform을 쓰지만 웹 hover엔 색 변화가 더 명확해서 유지) */
+  --color-primary-disabled: #a9c8ea; /* Action Blue의 저채도 톤 */
+  --color-ink: #1d1d1f;              /* {colors.ink} */
+  --color-body: #333333;             /* {colors.ink-muted-80} */
+  --color-muted: #7a7a7a;            /* {colors.ink-muted-48} */
+  --color-hairline: #e0e0e0;         /* {colors.hairline} */
+  --color-hairline-soft: #f0f0f0;    /* {colors.divider-soft} */
+  --color-canvas: #ffffff;           /* {colors.canvas} */
+  --color-surface-soft: #f5f5f7;     /* {colors.canvas-parchment} */
+  --color-surface-strong: #e8e8ea;   /* parchment보다 한 단계 짙은 중립 */
+  --color-surface-dark: #000000;     /* {colors.surface-black} — 글로벌 nav 전용 */
+  --color-surface-dark-elevated: #1d1d1f; /* 다크 표면 위 드롭다운/패널 */
+  --color-on-primary: #ffffff;       /* {colors.on-primary} */
+  --color-on-dark: #ffffff;          /* {colors.body-on-dark} */
+  --color-on-dark-soft: #cccccc;     /* {colors.body-muted} */
+  --color-semantic-up: #05b169;      /* 최저가/상승 등 도메인 시맨틱 색 — 애플 시스템엔 없지만 요금 비교 UI에 필요해 유지 */
   --color-semantic-down: #cf202f;
   --color-accent-yellow: #f4b000;
 
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --radius-pill: 100px;
-  --radius-full: 9999px;
+  --radius-xs: 5px;   /* {rounded.xs} */
+  --radius-sm: 8px;   /* {rounded.sm} */
+  --radius-md: 11px;  /* {rounded.md} */
+  --radius-lg: 18px;  /* {rounded.lg} */
+  --radius-xl: 20px;  /* 히어로/대형 카드 전용 확장 단계 (애플 토큰엔 없음) */
+  --radius-pill: 9999px; /* {rounded.pill} */
+  --radius-full: 9999px; /* {rounded.full} */
 
-  --space-xxs: 4px;
-  --space-xs: 8px;
-  --space-sm: 12px;
+  --space-xxs: 4px;   /* {spacing.xxs} */
+  --space-xs: 8px;    /* {spacing.xs} */
+  --space-sm: 12px;   /* {spacing.sm} */
   --space-base: 16px;
   --space-md: 20px;
-  --space-lg: 24px;
-  --space-xl: 32px;
-  --space-xxl: 48px;
-  --space-section: 96px;
+  --space-lg: 24px;   /* {spacing.lg} */
+  --space-xl: 32px;   /* {spacing.xl} */
+  --space-xxl: 48px;  /* {spacing.xxl} */
+  --space-section: 80px; /* {spacing.section} */
 }
 
 *, *::before, *::after {
@@ -45,12 +47,18 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* SF Pro 우선, 애플 기기가 아니면 Inter로 대체 (PAGE_DESIGN.md "Note on Font Substitutes") */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 16px;
   color: var(--color-ink);
   background-color: var(--color-canvas);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;         /* 애플 헤드라인은 600, 500은 쓰지 않는다 */
+  letter-spacing: -0.02em;  /* "Apple tight" 트래킹을 Inter로 근사 */
 }
 
 a {
@@ -78,11 +86,12 @@ input, select {
   background: var(--color-primary);
   color: var(--color-on-primary);
   border-radius: var(--radius-pill);
-  padding: 12px 24px;
-  font-size: 15px;
+  padding: 12px 20px;
+  height: 44px;
+  font-size: 16px;
   font-weight: 600;
-  line-height: 1;
-  transition: background 0.15s ease, transform 0.1s ease;
+  line-height: 1.15;
+  transition: background 0.15s ease;
 }
 
 .btn-primary:hover {
@@ -90,7 +99,7 @@ input, select {
 }
 
 .btn-primary:active {
-  transform: scale(0.98);
+  background: var(--color-primary-active);
 }
 
 .btn-primary:disabled {
@@ -107,10 +116,11 @@ input, select {
   color: var(--color-primary);
   border: 1.5px solid var(--color-primary);
   border-radius: var(--radius-pill);
-  padding: 11px 24px;
-  font-size: 15px;
+  padding: 11px 19px;
+  height: 44px;
+  font-size: 16px;
   font-weight: 600;
-  line-height: 1;
+  line-height: 1.15;
   transition: background 0.15s ease;
 }
 
@@ -122,7 +132,7 @@ input, select {
   background: var(--color-canvas);
   border-radius: var(--radius-xl);
   border: 1px solid var(--color-hairline);
-  padding: var(--space-lg);
+  padding: var(--space-xl);
 }
 
 .container {

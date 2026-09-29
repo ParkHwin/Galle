@@ -20,7 +20,7 @@ public class BusController {
 
     @GetMapping("/terminals")
     public ApiResponse<List<Map<String, Object>>> getTerminals(
-            @RequestParam(required = false) String name) {
+            @RequestParam(name = "name", required = false) String name) {
         return ApiResponse.ok(busService.getTerminals(name));
     }
 
@@ -31,9 +31,9 @@ public class BusController {
 
     @GetMapping("/routes")
     public ApiResponse<List<Map<String, Object>>> getRoutes(
-            @RequestParam String depCityCode,
-            @RequestParam String arrCityCode,
-            @RequestParam(required = false) String date) {
+            @RequestParam("depCityCode") String depCityCode,
+            @RequestParam("arrCityCode") String arrCityCode,
+            @RequestParam(name = "date", required = false) String date) {
         return ApiResponse.ok(busService.getRoutes(depCityCode, arrCityCode, date));
     }
 }

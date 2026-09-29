@@ -6,7 +6,8 @@ const TABS = [
   { id: 'SRT', label: 'SRT' },
   { id: 'ITX-마음', label: 'ITX-마음' },
   { id: 'ITX-새마을', label: 'ITX-새마을' },
-  { id: '새마을호', label: '새마을호' },
+  { id: 'ITX-청춘', label: 'ITX-청춘' },
+  { id: '무궁화호', label: '무궁화호' },
   { id: '고속버스', label: '고속버스' },
   { id: '자가용', label: '자가용' },
 ]

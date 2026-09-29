@@ -23,12 +23,7 @@ public class FareService {
     }
 
     public List<FareDto> getNormalTrainFares() {
-        // ITX-마음, ITX-새마을, 새마을호 운임표
-        return List.of(
-            FareDto.builder().transportType("ITX-새마을").departureName("서울").arrivalName("부산").seatClass("standard").fare(42600L).build(),
-            FareDto.builder().transportType("ITX-새마을").departureName("서울").arrivalName("대전").seatClass("standard").fare(17600L).build(),
-            FareDto.builder().transportType("새마을호").departureName("서울").arrivalName("부산").seatClass("standard").fare(36100L).build(),
-            FareDto.builder().transportType("ITX-마음").departureName("서울").arrivalName("부산").seatClass("standard").fare(28700L).build()
-        );
+        // ITX-새마을 / ITX-마음 / 무궁화호 운임표 (FallbackFareLoader에서 XLS/XLSX 파싱)
+        return fallbackFareLoader.loadItxFares();
     }
 }

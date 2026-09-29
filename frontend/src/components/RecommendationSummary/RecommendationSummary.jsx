@@ -27,9 +27,12 @@ export default function RecommendationSummary({ summary }) {
     },
   ]
 
+  const visibleItems = items.filter((item) => item.value != null)
+  if (visibleItems.length === 0) return null
+
   return (
     <div className="recommendation-summary" aria-label="검색 결과 요약">
-      {items.map((item) => (
+      {visibleItems.map((item) => (
         <div key={item.key} className={`summary-card ${item.colorClass}`}>
           <span className="summary-card__emoji" aria-hidden="true">{item.emoji}</span>
           <div className="summary-card__body">

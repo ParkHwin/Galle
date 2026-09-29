@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="footer">
       <div className="footer__inner container">
         <div className="footer__brand">
-          <span className="footer__logo">🚆 갈래</span>
+          <span className="footer__logo">갈래</span>
           <p className="footer__tagline">도시 간 교통 비교 플랫폼</p>
         </div>
         <p className="footer__disclaimer">

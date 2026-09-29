@@ -8,10 +8,11 @@
 }
 
 .favorites-page__title {
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 400;
   color: var(--color-ink);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.4px;
+  line-height: 1.13;
   margin-bottom: var(--space-xs);
 }
 
@@ -43,7 +44,7 @@
 .favorites-page__empty-sub {
   font-size: 14px;
   color: var(--color-muted);
-  font-weight: 400 !important;
+  font-weight: 400;
 }
 
 .favorites-page__cta {

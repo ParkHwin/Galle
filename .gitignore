@@ -63,3 +63,8 @@ backend/src/main/resources/data/*.xlsx
 *.jar
 *.war
 *.ear
+
+# Build/tool artifacts
+backend/bin/
+.omc/
+backend/.omc/

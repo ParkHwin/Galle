@@ -7,9 +7,11 @@ out/
 .env
 src/main/resources/application.yml
 !src/main/resources/application-example.yml
-src/main/resources/data/*.csv
-src/main/resources/data/*.xls
-src/main/resources/data/*.xlsx
+# 원본 운임 파일 (한글 파일명, 라이선스 불명) — git 제외
+src/main/resources/data/(주)에스알_*.csv
+src/main/resources/data/KTX운임표.xls
+src/main/resources/data/일반열차*.xlsx
+# 가공된 fallback 파일은 git에 포함 (srt_fares.csv 등)
 HELP.md
 .idea/
 *.iml

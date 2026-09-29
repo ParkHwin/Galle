@@ -3,6 +3,10 @@
 > 도시 간 교통수단 통합 비교 플랫폼
 > "서울에서 부산, 어떻게 가는 게 제일 나을까? 10초 비교"
 
+> **⚠️ 문서 상태 안내 (최종 갱신: 2026-07-02)**
+> 1~5장(문제 정의, 솔루션, 경쟁 환경, 데이터 소스, MVP 스코프)은 초기 기획 의도를 그대로 담고 있어 지금도 유효하다.
+> 다만 6장 "기술 설계"는 **초기 구상안(Next.js + Prisma + NextAuth + AWS RDS)**이며, 실제 구현은 이 구상과 다르게 **React + Vite / Spring Boot / Spring Security OAuth2 / MySQL·H2**로 진행됐다. 실제 아키텍처·API 스펙은 이 문서가 아니라 [`README.md`](./README.md)를 기준으로 봐야 한다. 6장은 "왜 이 스택으로 시작하려 했는지"에 대한 기록으로만 남겨두고, 실제 구현 스펙과 혼동하지 않도록 아래에 실제 구현 요약을 별도로 추가했다.
+
 \---
 
 ## 1\. 문제 정의
@@ -126,7 +130,22 @@
 
 ## 6\. 기술 설계
 
-### 6-1. 아키텍처
+### 6-0. 실제 구현 스택 (현재 · README.md 기준)
+
+아래 6-1~6-6은 최초 기획 당시의 구상안이고, **실제로 채택되어 동작 중인 스택은 다음과 같다.**
+
+|레이어|구상안 (6-1~6-6)|실제 구현|
+|-|-|-|
+|Frontend|Next.js (React) + Tailwind CSS|React 18 + Vite + JavaScript + React Router v6 + Axios (Tailwind 미사용, 커스텀 CSS 변수 기반)|
+|Backend|Next.js API Routes|Spring Boot 3.3 (Java 17) — Spring Web, Spring Data JPA, WebFlux|
+|Auth|NextAuth.js (Google/Naver/Kakao)|Spring Security OAuth2 Client + 자체 JWT 발급 (Google/Naver/Kakao 소셜 로그인은 동일하게 지원)|
+|DB|MySQL 8.0 (AWS RDS)|MySQL 8.0 (운영) / H2 인메모리 (개발 fallback, `application.yml` 없을 때 자동 기동)|
+|ORM|Prisma|Spring Data JPA (Hibernate), `ddl-auto: update`|
+|배포|Vercel (FE+API) + AWS RDS|미확정 (별도 백엔드 서버 배포 필요 — Vercel 단일 배포 전제가 더 이상 성립하지 않음)|
+
+구상안과 실제 구현이 갈라진 이유(별도 백엔드 서버로 전환)는 기록이 남아있지 않다. 이후 의사결정 시 참고할 수 있도록, 스택을 바꿀 때는 이 표를 함께 갱신할 것.
+
+### 6-1. 아키텍처 (초기 구상안 — 미채택)
 
 ```
 \[사용자] → \[Next.js 프론트엔드 (Vercel)]
@@ -137,7 +156,7 @@
     (MySQL)    (스케줄)    (자가용 경로)  (Google/Naver/Kakao)
 ```
 
-### 6-2. 인증 (OAuth 2.0 소셜 로그인)
+### 6-2. 인증 (초기 구상안 — 미채택, 실제로는 Spring Security OAuth2 + JWT로 구현됨)
 
 |제공자|용도|연동 방식|
 |-|-|-|
@@ -161,7 +180,7 @@
 * Naver Developers → 애플리케이션 등록 → 네이버 로그인 API
 * Kakao Developers → 애플리케이션 등록 → 카카오 로그인 API
 
-### 6-3. 기술 스택
+### 6-3. 기술 스택 (초기 구상안 — 미채택, 실제 스택은 위 6-0 참고)
 
 |레이어|기술|이유|
 |-|-|-|
@@ -173,7 +192,7 @@
 |배포|Vercel (FE+API) + AWS RDS (DB)|Vercel 무료, RDS 프리 티어|
 |API 통신|axios|다중 API 병렬 호출|
 
-### 6-4. DB 스키마 (MySQL)
+### 6-4. DB 스키마 (초기 구상안 — 미채택, 실제 스키마는 6-4-1 참고)
 
 ```sql
 -- ============================================
@@ -274,6 +293,23 @@ CREATE TABLE search\_logs (
 );
 ```
 
+### 6-4-1. 실제 DB 스키마 (JPA 엔티티 기준, 현재)
+
+위 6-4는 채택되지 않았다. 실제로는 `id`가 문자열(VARCHAR)이 아니라 `BIGINT AUTO_INCREMENT`이고, NextAuth 표준 테이블(`accounts`, `sessions`) 대신 자체 JWT 방식을 쓰기 때문에 구조가 더 단순하다.
+
+|테이블|주요 컬럼|비고|
+|-|-|-|
+|`users`|id, provider, provider\_id, email, nickname, profile\_image\_url, role, created\_at, updated\_at|`(provider, provider_id)` 유니크 — accounts 테이블 없이 소셜 계정 1:1|
+|`stations`|id, name, type, city, code, booking\_url|기획안의 stations와 거의 동일|
+|`fares`|id, transport\_type, departure\_id(FK→stations), arrival\_id(FK→stations), class\_type, fare|`(transport_type, departure_id, arrival_id, class_type)` 유니크|
+|`search_logs`|id, departure\_city, arrival\_city, search\_date, searched\_at|**user\_id 컬럼이 없다** — 로그인 사용자와 연결되지 않은 상태로 남아 있음 (아래 참고)|
+
+> **알려진 갭:** `search_logs`에 로그인 사용자를 연결하는 컬럼이 없어서, 기획 의도("로그인 사용자의 최근 검색 저장")가 실제로는 구현되어 있지 않다. 즐겨찾기 기능도 서버 저장이 아니라 프론트엔드 `localStorage`로만 동작한다 (2026-07-02 기준: 로그인 사용자에 한해 서버 저장으로 전환 작업 진행, 아래 `favorites` 테이블 추가 참고).
+>
+> |테이블|주요 컬럼|비고|
+> |-|-|-|
+> |`favorites`|id, user\_id(FK→users), departure\_city, arrival\_city, label, created\_at|로그인 사용자 전용. 비로그인 사용자는 기존과 동일하게 `localStorage`만 사용|
+
 **AWS RDS 설정:**
 
 * 엔진: MySQL 8.0
@@ -282,7 +318,9 @@ CREATE TABLE search\_logs (
 * 리전: ap-northeast-2 (서울)
 * 퍼블릭 액세스: 개발 중 Yes → 배포 후 Vercel IP만 허용
 
-### 6-5. API 설계
+### 6-5. API 설계 (초기 구상안 — 미채택, 실제 엔드포인트는 README.md "주요 API 명세" 참고)
+
+실제 통합 검색 엔드포인트는 `GET /api/search/routes` (아래 `/api/compare` 아님)이며, 응답 필드명도 snake_case가 아니라 camelCase(`departureName`, `durationMinutes` 등)로 구현되어 있다. 아래 예시는 초기 구상 당시의 스펙이다.
 
 ```
 GET /api/compare
@@ -344,7 +382,7 @@ Response:
 }
 ```
 
-### 6-6. 데이터 흐름
+### 6-6. 데이터 흐름 (초기 구상안 — 개념은 유지, 세부 구현은 SearchService/TrainScheduleCache 참고)
 
 ```
 \[검색 요청] from=서울, to=부산, date=2026-06-20
