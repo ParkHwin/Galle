@@ -14,6 +14,8 @@
 - **교통수단 필터**: KTX, SRT, ITX-마음, ITX-새마을, 새마을호, 고속버스, 자가용
 - **예매 연결**: 각 결과에서 해당 예매 사이트로 직접 이동
 - **fallback 구조**: 열차는 API 장애 시 코레일 공시 시각표(엑셀)로 실제 운행 열차를 표시하고, 시각표도 없으면 mock 데이터 사용 (임의 출발시각 생성 없음)
+- **소셜 로그인**: Google / Kakao / Naver OAuth2 로그인 → JWT 발급
+- **즐겨찾기**: 로그인 사용자가 출발지·도착지 구간을 저장/삭제 (비로그인 시 프론트엔드 localStorage로 동작)
 
 ---
 
@@ -50,6 +52,7 @@
 │       ├── dto/           # 요청/응답 DTO
 │       ├── entity/        # JPA 엔티티
 │       ├── repository/    # DB 접근
+│       ├── security/      # OAuth2 로그인, JWT 발급/검증
 │       ├── exception/     # 전역 예외 처리
 │       └── util/          # Mock·Fallback 데이터
 │
@@ -147,6 +150,56 @@ external:
 
 ---
 
+## 소셜 로그인 / JWT 설정 방법
+
+`application.yml`에 아래 설정을 추가합니다.
+
+```yaml
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: YOUR_GOOGLE_CLIENT_ID
+            client-secret: YOUR_GOOGLE_CLIENT_SECRET
+            scope: email, profile
+          kakao:
+            client-id: YOUR_KAKAO_CLIENT_ID
+            client-secret: YOUR_KAKAO_CLIENT_SECRET
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-authentication-method: client_secret_post
+            scope: profile_nickname, account_email
+          naver:
+            client-id: YOUR_NAVER_CLIENT_ID
+            client-secret: YOUR_NAVER_CLIENT_SECRET
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope: email
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+          naver:
+            authorization-uri: https://nid.naver.com/oauth2.0/authorize
+            token-uri: https://nid.naver.com/oauth2.0/token
+            user-info-uri: https://openapi.naver.com/v1/nid/me
+            user-name-attribute: response
+
+jwt:
+  secret: YOUR_JWT_SECRET_KEY          # 최소 32자 이상 랜덤 문자열
+  expiration-ms: 86400000              # 토큰 만료 (ms), 기본 24시간
+  redirect-uri: http://localhost:5173/oauth/callback  # 로그인 성공 후 프론트엔드로 리다이렉트할 주소
+```
+
+> 로그인 시작: `GET /oauth2/authorization/{google|kakao|naver}` → 로그인 성공 시 `jwt.redirect-uri?token=JWT`로 리다이렉트됩니다.
+> 이후 API 요청은 `Authorization: Bearer {token}` 헤더로 인증합니다.
+
+---
+
 ## fallback 구조와 데이터 파일
 
 외부 API가 실패·타임아웃(10초)되면 교통수단별로 아래 순서로 대체합니다.
@@ -197,7 +250,11 @@ backend/src/main/resources/data/
 | GET | `/api/bus/grades` | 버스 등급 조회 |
 | GET | `/api/bus/routes` | 고속버스 노선 조회 |
 | GET | `/api/car/directions` | 자가용 길찾기 |
+| GET | `/oauth2/authorization/{provider}` | 소셜 로그인 시작 (`google`/`kakao`/`naver`) |
 | GET | `/api/auth/me` | 현재 로그인 사용자 정보 조회 (JWT 필요) |
+| GET | `/api/favorites` | 즐겨찾기 목록 조회 (JWT 필요) |
+| POST | `/api/favorites` | 즐겨찾기 추가 (JWT 필요) |
+| DELETE | `/api/favorites?from=&to=` | 즐겨찾기 삭제 (JWT 필요) |
 
 ### 통합 검색 예시
 
