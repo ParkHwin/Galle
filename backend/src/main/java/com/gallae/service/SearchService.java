@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -21,14 +22,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SearchService {
-
-    /**
-     * 구간별 소요시간(분) 정적 테이블.
-     * 인덱스: [0]=KTX, [1]=ITX-새마을, [2]=무궁화호
-     * 0 = 해당 교통수단 해당 구간 미운행.
-     * 단방향만 등록, 조회 시 역방향도 시도.
-     * 출발역 기준: 경부선→서울, 호남선→서울(KTX)/용산(일반열차)
-     */
 
     /**
      * 버스 fallback 테이블. [소요분, 우등운임(원)]
@@ -87,65 +80,6 @@ public class SearchService {
         CAR_FALLBACK = Collections.unmodifiableMap(c);
     }
 
-    private static final Map<String, int[]> SEGMENT_DURATION;
-    static {
-        Map<String, int[]> m = new LinkedHashMap<>();
-        // ── 경부선 ────────────────────────────────────────────────────────────
-        m.put("서울|부산",       new int[]{160, 275, 330});
-        m.put("서울|울산",       new int[]{140, 240, 285});
-        m.put("서울|경주",       new int[]{130, 225,   0});
-        m.put("서울|동대구",     new int[]{110, 185, 240});
-        m.put("서울|대구",       new int[]{115, 190, 245});
-        m.put("서울|김천구미",   new int[]{ 85,   0, 195});
-        m.put("서울|김천",       new int[]{  0,   0, 190});
-        m.put("서울|구미",       new int[]{  0,   0, 205});
-        m.put("서울|대전",       new int[]{ 50, 100, 150});
-        m.put("서울|신탄진",     new int[]{  0,  90, 135});
-        m.put("서울|조치원",     new int[]{  0,  85, 120});
-        m.put("서울|천안",       new int[]{  0,  75, 100});  // 무궁화호·ITX-새마을용 천안역
-        m.put("서울|천안아산",   new int[]{ 30,   0,   0});  // KTX·SRT 전용 천안아산역
-        m.put("서울|오송",       new int[]{ 38,   0,   0});
-        m.put("서울|평택",       new int[]{  0,  55,  80});
-        m.put("서울|수원",       new int[]{  0,  40,  60});
-        m.put("서울|영등포",     new int[]{  0,  20,  20});
-        // ── 호남선 (KTX는 서울, ITX-새마을·무궁화호는 용산 출발) ──────────────
-        m.put("서울|광주송정",   new int[]{ 88,   0,   0});
-        m.put("서울|광주",       new int[]{  0, 200, 260});  // ITX-새마을·무궁화호는 광주역
-        m.put("용산|광주",       new int[]{  0, 200, 260});
-        m.put("서울|나주",       new int[]{ 98,   0,   0});
-        m.put("서울|목포",       new int[]{130,   0,   0});
-        m.put("용산|목포",       new int[]{  0, 230, 280});
-        m.put("서울|익산",       new int[]{ 75, 165, 215});
-        m.put("용산|익산",       new int[]{  0, 165, 215});
-        m.put("서울|정읍",       new int[]{ 95,   0, 250});
-        m.put("용산|정읍",       new int[]{  0, 195, 250});
-        m.put("서울|전주",       new int[]{  0, 170, 225});
-        m.put("용산|전주",       new int[]{  0, 170, 225});
-        m.put("서울|논산",       new int[]{  0, 130, 175});
-        // ── 경전선 ────────────────────────────────────────────────────────────
-        m.put("서울|진주",       new int[]{  0, 305,   0});
-        // ── 강릉선 (경강선) ─────────────────────────────────────────────────────
-        // idx=1: 경강선은 ITX-새마을 미운행 → ITX-마음 소요시간 기재
-        m.put("서울|강릉",       new int[]{120, 132,   0});
-        m.put("서울|진부",       new int[]{105, 117,   0});
-        m.put("서울|평창",       new int[]{ 95, 107,   0});
-        m.put("서울|원주",       new int[]{ 70,  87,   0});
-        // ── 동해선·태백선 ─────────────────────────────────────────────────────
-        m.put("청량리|부전",     new int[]{  0,   0, 390});
-        // ── 동해선 (포항·KTX-이음) ────────────────────────────────────────────────
-        m.put("서울|포항",       new int[]{120,   0, 285}); // KTX-이음, 무궁화호
-        // ── 경전선 (창원) ─────────────────────────────────────────────────────────
-        m.put("서울|창원",       new int[]{185,   0, 280}); // KTX(창원중앙), 무궁화호
-        // ── 전라선 (여수·순천, 용산출발) ─────────────────────────────────────────
-        m.put("용산|여수",       new int[]{160,   0, 345}); // KTX, 무궁화호
-        m.put("용산|순천",       new int[]{145,   0, 315}); // KTX, 무궁화호
-        m.put("서울|여수",       new int[]{160,   0, 345}); // 서울 출발 검색 호환
-        m.put("서울|순천",       new int[]{145,   0, 315}); // 서울 출발 검색 호환
-        // ── 경춘선 (춘천, ITX-청춘) ──────────────────────────────────────────────
-        m.put("서울|춘천",       new int[]{  0,  70,   0}); // ITX-청춘(idx=1)
-        SEGMENT_DURATION = Collections.unmodifiableMap(m);
-    }
-
     private final KorailClient korailClient;
     private final BusClient busClient;
     private final KakaoNaviClient kakaoNaviClient;
@@ -172,6 +106,7 @@ public class SearchService {
 
     private RouteSearchResponse buildSearchResponse(String from, String to, String date, String time) {
         List<RouteResult> results = new ArrayList<>();
+        LocalDate searchDate = toLocalDate(date);
 
         // 1. 열차 스케줄 (코레일 API) — 도시명 → 역 코드 변환 후 호출
         CompletableFuture<List<RouteResult>> trainFuture = CompletableFuture.supplyAsync(() -> {
@@ -232,10 +167,18 @@ public class SearchService {
             // 코레일 API에서 반환하지 않은 열차 종류 보충 (KTX 포함)
             Set<String> foundTypes = korailResults.stream().map(RouteResult::getType).collect(Collectors.toSet());
             List<RouteResult> all = new ArrayList<>(korailResults);
-            all.addAll(getSupplementalTrainResults(from, to, time, foundTypes));
-            log.info("[SearchService] 열차 최종 {}건 (코레일 API {}건 + 보충 {}건)",
+            all.addAll(getSupplementalTrainResults(from, to, time, searchDate, foundTypes));
+            // API가 "KTX-산천 303", 시각표가 "KTX 303"처럼 이름만 다른 같은 열차 → 열차번호로 중복 제거(API 우선)
+            Set<String> seen = new HashSet<>();
+            all.removeIf(r -> {
+                String no = r.getName() == null ? "" : r.getName().replaceAll(".*\\s", "");
+                String type = r.getType() != null && r.getType().startsWith("KTX") ? "KTX" : r.getType();
+                return no.matches("\\d+") && !seen.add(type + " " + no);
+            });
+            log.info("[SearchService] 열차 최종 {}건 (코레일 API {}건 + 시각표 {}건)",
                     all.size(), korailResults.size(), all.size() - korailResults.size());
-            return all.isEmpty() ? getTrainFallbackResults(from, to, time) : all;
+            if (all.isEmpty() && !trainScheduleCache.hasTimetable()) return mockTrainResults(from, to, date, time);
+            return all;
         });
 
         // 2. 고속버스 (TAGO API) — 도시명 → 터미널 ID 변환 후 호출
@@ -294,12 +237,12 @@ public class SearchService {
         try {
             results.addAll(trainFuture.get(10, TimeUnit.SECONDS));
         } catch (TimeoutException e) {
-            log.warn("[SearchService] 열차 API 타임아웃 → fallback");
+            log.warn("[SearchService] 열차 API 타임아웃 → 시각표 fallback");
             trainFuture.cancel(true);
-            results.addAll(getTrainFallbackResults(from, to, time));
+            results.addAll(trainFallbackResults(from, to, date, time, searchDate));
         } catch (Exception e) {
-            log.warn("[SearchService] 열차 API 오류 → fallback: {}", e.getMessage());
-            results.addAll(getTrainFallbackResults(from, to, time));
+            log.warn("[SearchService] 열차 API 오류 → 시각표 fallback: {}", e.getMessage());
+            results.addAll(trainFallbackResults(from, to, date, time, searchDate));
         }
         try {
             results.addAll(busFuture.get(10, TimeUnit.SECONDS));
@@ -497,192 +440,56 @@ public class SearchService {
     // ─── Fallback ────────────────────────────────────────────────────────────
 
     /**
-     * 코레일 API(주로 KTX)에서 빠진 열차 종류를 실제 운임표 + 소요시간 테이블 기반으로 보충.
-     * 운임표에 해당 구간이 없으면 해당 교통수단은 표시하지 않음.
+     * 코레일 API 결과에 없는 열차 종류를 실제 시각표(TrainScheduleCache)로 보충.
+     * 코레일 API가 완전히 실패하면 foundTypes=빈 Set 으로 호출되어 전체 열차를 시각표로 대체.
+     * 시각표에 없는 구간·열차는 표시하지 않는다(임의 출발시각 생성 안 함).
      */
-    private List<RouteResult> getSupplementalTrainResults(String from, String to, String time, Set<String> foundTypes) {
+    private List<RouteResult> getSupplementalTrainResults(String from, String to, String time, LocalDate date, Set<String> foundTypes) {
         List<RouteResult> results = new ArrayList<>();
-        int base = parseTimeToMinutes(time);
-        String arrNm = to.endsWith("역") ? to : to + "역";
-
-        // ── KTX (API에서 KTX가 누락된 경우만 보충) ───────────────────────────────
-        // numOfRows 한계·시간 필터로 API 결과에서 KTX가 사라질 수 있으므로 항상 안전망 추가
-        if (!foundTypes.contains("KTX")) {
-            long fare = lookupFareFromCsv("KTX", from, to);
-            int  dur  = estimateDuration("KTX", from, to);
-            if (fare > 0 && dur > 0) {
-                String depNm = from.endsWith("역") ? from : from + "역";
-                for (int offset : new int[]{20, 65, 115}) {
-                    int dep = (base + offset) % 1440;
-                    results.add(RouteResult.builder()
-                            .type("KTX").name("KTX")
-                            .departureName(depNm).arrivalName(arrNm)
-                            .departureTime(minutesToTime(dep)).arrivalTime(minutesToTime((dep + dur) % 1440))
-                            .durationMinutes(dur).fare(fare)
-                            .recommendTags(new ArrayList<>()).bookingUrl("https://www.letskorail.com")
-                            .build());
-                }
-            }
-        }
-
-        // ── ITX-마음 ─────────────────────────────────────────────────────────────
-        // 경강선(강릉·원주·진부·평창) 전용. 운임 = ITX-새마을 * 0.89 또는 KTX * 0.65
-        if (!foundTypes.contains("ITX-마음")) {
-            long fare = lookupFareFromCsv("ITX-마음", from, to);
-            int dur  = estimateDuration("ITX-마음", from, to);
-            if (fare > 0 && dur > 0) {
-                String depNm = from.endsWith("역") ? from : from + "역";
-                int dep = (base + 35) % 1440;
+        int fromMin = parseTimeToMinutes(time);
+        Map<String, Long> fareCache = new HashMap<>();
+        for (String type : List.of("KTX", "ITX-마음", "ITX-새마을", "무궁화호", "SRT")) {
+            if (foundTypes.contains(type)) continue;
+            // 서울 검색은 TrainScheduleCache 가 용산·청량리 출발도 함께 찾는다
+            String dep = type.equals("SRT") ? srtStationName(from) : from;
+            String arr = type.equals("SRT") ? srtStationName(to) : to;
+            long cityFare = lookupFareFromCsv(type, from, to);
+            for (TrainScheduleCache.Trip trip : trainScheduleCache.findTrips(type, dep, arr, date)) {
+                if (parseTimeToMinutes(trip.depTime()) < fromMin) continue;
+                // 실제 승하차역(용산·광주송정 등) 운임 우선, 없으면 도시 기준 운임
+                long fare = fareCache.computeIfAbsent(type + trip.depStation() + "|" + trip.arrStation(),
+                        k -> lookupFareFromCsv(type, trip.depStation(), trip.arrStation()));
+                if (fare <= 0) fare = cityFare;
                 results.add(RouteResult.builder()
-                        .type("ITX-마음").name("ITX-마음")
-                        .departureName(depNm).arrivalName(arrNm)
-                        .departureTime(minutesToTime(dep)).arrivalTime(minutesToTime((dep + dur) % 1440))
-                        .durationMinutes(dur).fare(fare)
-                        .recommendTags(new ArrayList<>()).bookingUrl("https://www.letskorail.com")
+                        .type(type).name(type + " " + trip.trainNo())
+                        .departureName(normalizeCity(trip.depStation()) + "역")
+                        .arrivalName(normalizeCity(trip.arrStation()) + "역")
+                        .departureTime(trip.depTime()).arrivalTime(trip.arrTime())
+                        .durationMinutes(trip.minutes()).fare(fare > 0 ? fare : null)
+                        .recommendTags(new ArrayList<>())
+                        .bookingUrl(type.equals("SRT") ? "https://etk.srail.kr" : "https://www.letskorail.com")
                         .build());
             }
         }
-
-        // ── ITX-새마을 ──────────────────────────────────────────────────────────
-        if (!foundTypes.contains("ITX-새마을")) {
-            long fare = lookupFareFromCsv("ITX-새마을", from, to);
-            int dur  = estimateDuration("ITX-새마을", from, to);
-            if (fare > 0 && dur > 0) {
-                String depNm = itxDepartureName(from, to);
-                int dep = (base + 50) % 1440;
-                results.add(RouteResult.builder()
-                        .type("ITX-새마을").name("ITX-새마을")
-                        .departureName(depNm).arrivalName(arrNm)
-                        .departureTime(minutesToTime(dep)).arrivalTime(minutesToTime((dep + dur) % 1440))
-                        .durationMinutes(dur).fare(fare)
-                        .recommendTags(new ArrayList<>()).bookingUrl("https://www.letskorail.com")
-                        .build());
-            }
-        }
-
-        // ── ITX-청춘 (경춘선 전용: 서울↔춘천) ──────────────────────────────────────
-        if (!foundTypes.contains("ITX-청춘")) {
-            long fare = lookupFareFromCsv("ITX-청춘", from, to);
-            int dur  = estimateDuration("ITX-청춘", from, to);
-            if (fare > 0 && dur > 0) {
-                String depNm = from.endsWith("역") ? from : from + "역";
-                int dep = (base + 45) % 1440;
-                results.add(RouteResult.builder()
-                        .type("ITX-청춘").name("ITX-청춘")
-                        .departureName(depNm).arrivalName(arrNm)
-                        .departureTime(minutesToTime(dep)).arrivalTime(minutesToTime((dep + dur) % 1440))
-                        .durationMinutes(dur).fare(fare)
-                        .recommendTags(new ArrayList<>()).bookingUrl("https://www.letskorail.com")
-                        .build());
-            }
-        }
-
-        // ── 무궁화호 ────────────────────────────────────────────────────────────
-        if (!foundTypes.contains("무궁화호")) {
-            long fare = lookupFareFromCsv("무궁화호", from, to);
-            int dur  = estimateDuration("무궁화호", from, to);
-            if (fare > 0 && dur > 0) {
-                String depNm = mugunghwaDepartureName(from, to);
-                int dep = (base + 80) % 1440;
-                results.add(RouteResult.builder()
-                        .type("무궁화호").name("무궁화호")
-                        .departureName(depNm).arrivalName(arrNm)
-                        .departureTime(minutesToTime(dep)).arrivalTime(minutesToTime((dep + dur) % 1440))
-                        .durationMinutes(dur).fare(fare)
-                        .recommendTags(new ArrayList<>()).bookingUrl("https://www.letskorail.com")
-                        .build());
-            }
-        }
-
-        // ── SRT ─────────────────────────────────────────────────────────────────
-        if (!foundTypes.contains("SRT") && isSrtDepartureCity(from)) {
-            long srtFare = lookupFareFromCsv("SRT", from, to);
-            if (srtFare > 0) {
-                int ktxDur = estimateDuration("KTX", from, to);
-                int srtDur = ktxDur > 0 ? (int)(ktxDur * 1.05) : 155; // SRT는 KTX와 거의 동일
-                String srtDep = srtDepName(from);
-                String srtArr = srtArrName(to);
-                for (int offset : new int[]{40, 100}) {
-                    int dep = (base + offset) % 1440;
-                    results.add(RouteResult.builder()
-                            .type("SRT").name("SRT")
-                            .departureName(srtDep).arrivalName(srtArr)
-                            .departureTime(minutesToTime(dep)).arrivalTime(minutesToTime((dep + srtDur) % 1440))
-                            .durationMinutes(srtDur).fare(srtFare)
-                            .recommendTags(new ArrayList<>()).bookingUrl("https://etk.srail.kr")
-                            .build());
-                }
-            }
-        }
-
         return results;
     }
 
-    /**
-     * 구간별 소요시간(분) 조회.
-     * 우선순위: ① TrainScheduleCache(실측값) → ② SEGMENT_DURATION 정적 테이블 → ③ KTX 운임 역산 추정.
-     * 0 또는 음수 반환 = 해당 교통수단 해당 구간 미운행.
-     */
-    private int estimateDuration(String trainType, String from, String to) {
-        String f = normalizeCity(from);
-        String t = normalizeCity(to);
-        int idx = switch (trainType) {
-            case "KTX", "KTX-산천", "KTX-이음" -> 0;
-            case "ITX-새마을", "ITX-마음", "ITX-청춘" -> 1;
-            case "무궁화호", "누리로"             -> 2;
-            default -> -1;
-        };
-        if (idx < 0) return -1;
+    /** 열차 API 실패 시: 시각표(엑셀) → 시각표 파일도 없으면 mock. 시각표는 있는데 결과가 없으면 열차 미운행 구간. */
+    private List<RouteResult> trainFallbackResults(String from, String to, String date, String time, LocalDate searchDate) {
+        if (trainScheduleCache.hasTimetable()) return getSupplementalTrainResults(from, to, time, searchDate, Set.of());
+        return mockTrainResults(from, to, date, time);
+    }
 
-        // ① TrainScheduleCache: 어제 실측 운행 기록 기반 (가장 정확)
-        if (trainScheduleCache.isLoaded()) {
-            int cached = trainScheduleCache.findMinDuration(trainType, f, t);
-            if (cached > 0) {
-                log.debug("[estimateDuration] 캐시 사용: {} {} → {} = {}분", trainType, f, t, cached);
-                return cached;
-            }
-        }
-
-        // ② SEGMENT_DURATION 정적 테이블
-        int[] d = SEGMENT_DURATION.get(f + "|" + t);
-        if (d == null) d = SEGMENT_DURATION.get(t + "|" + f);
-        if (d != null && idx < d.length) return d[idx]; // 0이면 미운행
-
-        // ③ KTX 운임에서 역산 추정 (약 370원/분)
-        long ktxFare = fallbackFareLoader.loadKtxFares().stream()
-                .filter(fv -> stationMatches(fv.getDepartureName(), from) && stationMatches(fv.getArrivalName(), to))
-                .findFirst().map(FareDto::getFare).orElse(0L);
-        if (ktxFare <= 0) return -1;
-        int ktxMin = (int)(ktxFare / 370.0);
-        return switch (idx) {
-            case 0 -> ktxMin;
-            case 1 -> (int)(ktxMin * 1.75);
-            case 2 -> (int)(ktxMin * 2.10);
-            default -> -1;
-        };
+    private List<RouteResult> mockTrainResults(String from, String to, String date, String time) {
+        log.warn("[SearchService] 열차 시각표 없음 → mock 열차 데이터");
+        return mockDataProvider.getMockSearchResult(from, to, date, time).getResults().stream()
+                .filter(r -> !"고속버스".equals(r.getType()) && !"자가용".equals(r.getType()))
+                .collect(Collectors.toList());
     }
 
     private String normalizeCity(String name) {
         if (name == null) return "";
         return name.replace("역", "").replace("터미널", "").trim();
-    }
-
-    /**
-     * 호남선 ITX-새마을 출발역명: 용산 기준.
-     * 서울 → 광주/목포/전주/익산/정읍/나주/논산 방면은 용산역 출발.
-     */
-    private String itxDepartureName(String from, String to) {
-        String f = normalizeCity(from);
-        String t = normalizeCity(to);
-        if (f.equals("서울") && isHonamLineCity(t)) return "용산역";
-        return f + "역";
-    }
-
-    private String mugunghwaDepartureName(String from, String to) {
-        String f = normalizeCity(from);
-        String t = normalizeCity(to);
-        if (f.equals("서울") && isHonamLineCity(t)) return "용산역";
-        return f + "역";
     }
 
     /** 호남선·전라선 방면 도시 여부 (ITX-새마을·무궁화호는 용산 출발) */
@@ -716,24 +523,10 @@ public class SearchService {
         return null;
     }
 
-    /** SRT 출발역: 수서역 고정 (서울권), 동탄/지제 등은 해당 역명 */
-    private String srtDepName(String from) {
-        return switch (normalizeCity(from)) {
-            case "서울", "수서" -> "수서역";
-            case "동탄"         -> "동탄역";
-            case "지제"         -> "지제역";
-            default             -> normalizeCity(from) + "역";
-        };
-    }
-
-    private String srtArrName(String to) {
-        String t = normalizeCity(to);
-        // SRT 도착역: 신경주(경주), 울산(통도사) 등 별칭 처리
-        return switch (t) {
-            case "경주" -> "신경주역";
-            case "울산" -> "울산(통도사)역";
-            default     -> t + "역";
-        };
+    /** SRT 역명: 서울권은 수서 */
+    private String srtStationName(String city) {
+        String c = normalizeCity(city);
+        return c.equals("서울") ? "수서" : c;
     }
 
     /**
@@ -780,37 +573,6 @@ public class SearchService {
         };
     }
 
-    /**
-     * 코레일 API 완전 실패 시 fallback.
-     * 운임표에 구간이 있는 교통수단만 표시.
-     */
-    private List<RouteResult> getTrainFallbackResults(String from, String to, String time) {
-        String arrNm = to.endsWith("역") ? to : to + "역";
-        int base = parseTimeToMinutes(time);
-        List<RouteResult> results = new ArrayList<>();
-
-        // KTX
-        long ktxFare = lookupFareFromCsv("KTX", from, to);
-        int ktxDur = estimateDuration("KTX", from, to);
-        if (ktxFare > 0 && ktxDur > 0) {
-            String depNm = from.endsWith("역") ? from : from + "역";
-            for (int offset : new int[]{20, 65, 115}) {
-                int dep = (base + offset) % 1440;
-                results.add(RouteResult.builder()
-                        .type("KTX").name("KTX")
-                        .departureName(depNm).arrivalName(arrNm)
-                        .departureTime(minutesToTime(dep)).arrivalTime(minutesToTime((dep + ktxDur) % 1440))
-                        .durationMinutes(ktxDur).fare(ktxFare)
-                        .recommendTags(new ArrayList<>()).bookingUrl("https://www.letskorail.com")
-                        .build());
-            }
-        }
-
-        // ITX-새마을, 무궁화호, SRT
-        results.addAll(getSupplementalTrainResults(from, to, time, Set.of("KTX")));
-        return results;
-    }
-
     /** 역명 유연 매칭 (역 접미사 제거, 포함 관계 허용) */
     private boolean stationMatches(String stationName, String cityName) {
         if (stationName == null || cityName == null) return false;
@@ -832,20 +594,8 @@ public class SearchService {
             || (s.equals("서울") && c.equals("수서"));
     }
 
-    /** SRT 출발 가능 도시 — SRT 운임표(srt_fares.csv) 출발역 기준 */
-    private boolean isSrtDepartureCity(String city) {
-        if (city == null) return false;
-        String c = city.replace("역", "").trim();
-        // SRT 운임표에 있는 구간인지 확인 (srt_fares.csv 기반)
-        boolean hasSrtFare = fallbackFareLoader.loadSrtFares().stream()
-                .anyMatch(f -> srtStationMatches(f.getDepartureName(), c));
-        if (hasSrtFare) return true;
-        // 서울은 수서 동일 취급
-        return c.equals("서울");
-    }
-
+    /** 버스 시간표 데이터가 없으므로 출발시각 없이 구간 기준값 1건만 반환(자가용과 동일). */
     private List<RouteResult> getBusFallbackResults(String from, String to, String time) {
-        int base = parseTimeToMinutes(time);
         String f = normalizeCity(from);
         String t = normalizeCity(to);
         long[] row = BUS_FALLBACK.get(f + "|" + t);
@@ -854,17 +604,13 @@ public class SearchService {
         long fare = row != null ? row[1] : 25900L;
 
         List<RouteResult> results = new ArrayList<>();
-        for (int offset : new int[]{30, 120, 210}) {
-            int dep = (base + offset) % 1440;
-            results.add(RouteResult.builder()
-                .type("고속버스").name("우등")
-                .departureName(from + "터미널").arrivalName(to + "터미널")
-                .departureTime(minutesToTime(dep)).arrivalTime(minutesToTime((dep + dur) % 1440))
-                .durationMinutes(dur).fare(fare)
-                .recommendTags(new ArrayList<>())
-                .bookingUrl("https://www.kobus.co.kr")
-                .build());
-        }
+        results.add(RouteResult.builder()
+            .type("고속버스").name("우등")
+            .departureName(from + "터미널").arrivalName(to + "터미널")
+            .durationMinutes(dur).fare(fare)
+            .recommendTags(new ArrayList<>())
+            .bookingUrl("https://www.kobus.co.kr")
+            .build());
         return results;
     }
 
@@ -1076,11 +822,11 @@ public class SearchService {
         return p[1].trim() + "," + p[0].trim();
     }
 
-    private int parseTimeToMinutes(String time) {
-        return TimeUtil.parseTimeToMinutes(time);
+    private static LocalDate toLocalDate(String date) {
+        try { return LocalDate.parse(date); } catch (Exception e) { return LocalDate.now(); }
     }
 
-    private String minutesToTime(int totalMinutes) {
-        return TimeUtil.minutesToTime(totalMinutes);
+    private int parseTimeToMinutes(String time) {
+        return TimeUtil.parseTimeToMinutes(time);
     }
 }
